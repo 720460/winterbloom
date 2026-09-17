@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상태기록지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef4f9;
+    --bg-grid: #e2ecf3;
+    --surface:#ffffff;
+    --surface-2:#f2f7fb;
+    --border:#d6e3ed;
+    --border-soft:#e6eef4;
+    --text:#28394a;
+    --text-muted:#65798c;
+    --text-faint:#9db0c0;
+    --accent:#3f93c9;
+    --accent-soft:#3f93c92a;
+    --health:#3fb99b;
+    --reason:#7d90d6;
+    --hunger:#e2a350;
+    --danger:#d15c56;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/100% 42px,
+      var(--bg);
+    color:var(--text);
+    font-family:"Noto Sans KR", sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  ::selection{background:var(--accent-soft);}
+  h1,h2,h3{font-family:"Gowun Batang", serif; margin:0;}
+  button{font-family:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:36px 20px 0;}
+
+  /* header */
+  header.top{
+    display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;
+    border-bottom:1px solid var(--border);
+    padding-bottom:22px;margin-bottom:26px;
+  }
+  .title-block .eyebrow{
+    color:var(--accent);font-size:13px;letter-spacing:.02em;margin-bottom:6px;font-weight:500;
+  }
+  .title-block h1{font-size:32px;font-weight:700;color:var(--text);}
+  .title-block p{margin:6px 0 0;color:var(--text-muted);font-size:14px;}
+  .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .count-pill{
+    border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-size:13px;color:var(--text-muted);
+    background:var(--surface);
+  }
+  .count-pill b{color:var(--text);font-family:"Gowun Batang",serif;font-size:15px;}
+  .search-input{
+    background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;
+    padding:9px 12px;font-size:14px;width:180px;outline:none;
+  }
+  .search-input:focus{border-color:var(--accent);}
+  .btn{
+    border:1px solid var(--border);background:var(--surface);color:var(--text);
+    padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .btn:hover{border-color:var(--accent);}
+  .btn:focus-visible, .search-input:focus-visible, .pip:focus-visible, .card:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#ffffff;font-weight:700;}
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn.ghost{background:transparent;}
+  .btn.danger{color:var(--danger);border-color:#e7c6c3;}
+  .btn.danger:hover{border-color:var(--danger);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  /* grid */
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:16px;
+  }
+  .card{
+    position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 14px 14px;cursor:pointer;text-align:left;color:inherit;font:inherit;
+    display:flex;flex-direction:column;gap:10px;transition:border-color .15s, transform .1s;
+  }
+  .card:hover{border-color:var(--accent);}
+  .card:active{transform:scale(.99);}
+  .tab{
+    position:absolute;top:-1px;left:14px;background:var(--surface-2);border:1px solid var(--border);border-top:none;
+    border-radius:0 0 6px 6px;padding:2px 8px;font-size:11px;color:var(--text-faint);letter-spacing:.03em;
+  }
+  .card-head{display:flex;gap:12px;align-items:center;margin-top:6px;}
+  .thumb{
+    width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--surface-2);border:1px solid var(--border-soft);flex-shrink:0;
+  }
+  .thumb.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:22px;}
+  .card-name{font-family:"Gowun Batang",serif;font-size:17px;font-weight:700;line-height:1.3;word-break:break-all;}
+  .card-status{font-size:12px;color:var(--accent);margin-top:2px;}
+  .stat-mini-row{display:flex;flex-direction:column;gap:6px;}
+  .stat-mini{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);}
+  .stat-mini .label{width:26px;flex-shrink:0;}
+  .pips{display:flex;gap:3px;}
+  .pip-mini{width:11px;height:11px;border-radius:2px;border:1px solid var(--border);background:transparent;}
+  .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:2px;border-top:1px solid var(--border-soft);padding-top:9px;}
+  .inv-count{font-size:11px;color:var(--text-faint);}
+
+  .empty-state{
+    grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--radius);padding:60px 20px;text-align:center;color:var(--text-muted);
+  }
+  .empty-state h3{color:var(--text);margin-bottom:8px;font-size:18px;}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(22,40,58,.45);display:none;align-items:flex-start;justify-content:center;
+    padding:40px 16px;overflow-y:auto;z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:640px;width:100%;
+    padding:28px 26px 24px;
+  }
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+  .modal-head h2{font-size:22px;}
+  .close-x{background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
+  .close-x:hover{color:var(--text);}
+
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px;letter-spacing:.02em;}
+  .field input[type=text], .field textarea{
+    width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;
+  }
+  .field input[type=text]:focus, .field textarea:focus{border-color:var(--accent);}
+
+  .photo-row{display:flex;gap:16px;align-items:center;}
+  .photo-preview{
+    width:100px;height:100px;border-radius:10px;object-fit:cover;background:var(--surface-2);border:1px solid var(--border);flex-shrink:0;
+  }
+  .photo-preview.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:32px;}
+  .photo-controls{display:flex;flex-direction:column;gap:8px;}
+  .photo-controls small{color:var(--text-faint);font-size:11px;}
+  input[type=file]{display:none;}
+
+  .stat-block{display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+  .stat-row{display:flex;align-items:center;gap:14px;}
+  .stat-row .label{width:46px;font-size:13px;color:var(--text-muted);flex-shrink:0;}
+  .pip-editor{display:flex;gap:6px;}
+  .pip{
+    width:28px;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--surface-2);cursor:pointer;
+    transition:transform .08s;
+  }
+  .pip:hover{transform:translateY(-1px);}
+  .stat-value{font-size:12px;color:var(--text-faint);width:34px;text-align:right;}
+
+  .inv-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;min-height:20px;}
+  .inv-chip{
+    display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:999px;padding:6px 8px 6px 12px;font-size:12.5px;
+  }
+  .inv-chip button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;}
+  .inv-chip button:hover{color:var(--danger);}
+  .inv-add{display:flex;gap:8px;}
+  .inv-add input{flex:1;}
+
+  .modal-actions{display:flex;justify-content:space-between;margin-top:24px;padding-top:18px;border-top:1px solid var(--border-soft);}
+  .modal-actions .right{display:flex;gap:8px;}
+
+  footer.bottom{
+    max-width:1180px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    color:var(--text-faint);font-size:12px;
+  }
+  footer.bottom .actions{display:flex;gap:8px;}
+
+  @media (max-width:520px){
+    .wrap{padding:24px 14px 0;}
+    header.top{flex-direction:column;align-items:stretch;}
+    .top-actions{justify-content:space-between;}
+    .search-input{flex:1;width:auto;}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+    .modal{padding:22px 18px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="title-block">
+      <div class="eyebrow">Snow Field Archive</div>
+      <h1>상태기록지</h1>
+      <p>체력 · 이성 · 허기 상태와 소지품을 한눈에 기록하세요.</p>
+    </div>
+    <div class="top-actions">
+      <input type="text" id="searchInput" class="search-input" placeholder="이름 검색...">
+      <span class="count-pill"><b id="countNum">0</b> / 40</span>
+      <button class="btn primary" id="addBtn">+ 캐릭터 추가</button>
+    </div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer class="bottom">
+  <span>데이터는 이 브라우저에만 저장돼요. 다른 기기와 공유하려면 내보내기를 이용하세요.</span>
+  <span class="actions">
+    <button class="btn ghost" id="exportBtn">내보내기 (JSON)</button>
+    <button class="btn ghost" id="importBtn">불러오기</button>
+    <input type="file" id="importFile" accept="application/json">
+  </span>
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">새 캐릭터</h2>
+      <button class="close-x" id="closeModal">✕</button>
+    </div>
+
+    <div class="field">
+      <label>두상 사진 (250×250으로 자동 조정돼요)</label>
+      <div class="photo-row">
+        <img id="photoPreview" class="photo-preview" style="display:none">
+        <div id="photoPlaceholder" class="photo-preview placeholder">?</div>
+        <div class="photo-controls">
+          <button class="btn" id="uploadBtn" type="button">사진 선택</button>
+          <button class="btn ghost" id="removePhotoBtn" type="button">사진 삭제</button>
+          <small>정사각형으로 잘라서 저장돼요</small>
+        </div>
+        <input type="file" id="photoInput" accept="image/*">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>이름</label>
+      <input type="text" id="nameInput" placeholder="캐릭터 이름">
+    </div>
+
+    <div class="field">
+      <label>스탯 (최대 5, 박스를 클릭해서 값을 설정하세요)</label>
+      <div class="stat-block">
+        <div class="stat-row">
+          <span class="label" style="color:var(--health)">체력</span>
+          <div class="pip-editor" data-stat="health"></div>
+          <span class="stat-value" id="healthVal">0 / 5</span>
+        </div>
+        <div class="stat-row">
+          <span class="label" style="color:var(--reason)">이성</span>
+          <div class="pip-editor" data-stat="reason"></div>
+          <span class="stat-value" id="reasonVal">0 / 5</span>
+        </div>
+        <div class="stat-row">
+          <span class="label" style="color:var(--hunger)">허기</span>
+          <div class="pip-editor" data-stat="hunger"></div>
+          <span class="stat-value" id="hungerVal">0 / 5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>상태</label>
+      <input type="text" id="statusInput" placeholder="예: 정상, 부상, 실종, 도주 중...">
+    </div>
+
+    <div class="field">
+      <label>소지품</label>
+      <div class="inv-list" id="invList"></div>
+      <div class="inv-add">
+        <input type="text" id="invInput" placeholder="아이템 이름 입력 후 Enter">
+        <button class="btn" id="invAddBtn" type="button">추가</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="deleteBtn">삭제</button>
+      <div class="right">
+        <button class="btn ghost" id="cancelBtn">취소</button>
+        <button class="btn primary" id="saveBtn">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const MAX_CHARS = 40;
+  const MAX_STAT = 5;
+  const STAT_KEYS = ["health","reason","hunger"];
+
+  /* ---------- IndexedDB helpers ---------- */
+  let db;
+  function openDB(){
+    return new Promise((resolve, reject)=>{
+      const req = indexedDB.open("ocStatDossier", 1);
+      req.onupgradeneeded = e=>{
+        const d = e.target.result;
+        if(!d.objectStoreNames.contains("characters")){
+          d.createObjectStore("characters", {keyPath:"id"});
+        }
+      };
+      req.onsuccess = e=>{ db = e.target.result; resolve(db); };
+      req.onerror = e=> reject(e);
+    });
+  }
+  function txStore(mode){
+    return db.transaction("characters", mode).objectStore("characters");
+  }
+  function dbGetAll(){
+    return new Promise((resolve, reject)=>{
+      const req = txStore("readonly").getAll();
+      req.onsuccess = ()=> resolve(req.result || []);
+      req.onerror = e=> reject(e);
+    });
+  }
+  function dbPut(char){
+    return new Promise((resolve, reject)=>{
+      const req = txStore("readwrite").put(char);
+      req.onsuccess = ()=> resolve();
+      req.onerror = e=> reject(e);
+    });
+  }
+  function dbDelete(id){
+    return new Promise((resolve, reject)=>{
+      const req = txStore("readwrite").delete(id);
+      req.onsuccess = ()=> resolve();
+      req.onerror = e=> reject(e);
+    });
+  }
+  function dbClear(){
+    return new Promise((resolve, reject)=>{
+      const req = txStore("readwrite").clear();
+      req.onsuccess = ()=> resolve();
+      req.onerror = e=> reject(e);
+    });
+  }
+
+  /* ---------- state ---------- */
+  let characters = [];
+  let currentId = null; // character being edited in modal, null = new
+  let draft = null;     // working copy while modal is open
+
+  function uid(){
+    return (crypto.randomUUID ? crypto.randomUUID() : "id-"+Date.now()+"-"+Math.random().toString(16).slice(2));
+  }
+  function blankChar(){
+    return {
+      id: uid(),
+      name: "",
+      photo: null,
+      stats: {health:0, reason:0, hunger:0},
+      status: "",
+      inventory: []
+    };
+  }
+
+  /* ---------- rendering: grid ---------- */
+  const gridEl = document.getElementById("grid");
+  const countNumEl = document.getElementById("countNum");
+  const searchInput = document.getElementById("searchInput");
+  const addBtn = document.getElementById("addBtn");
+
+  function statColor(key){
+    return key === "health" ? "var(--health)" : key === "reason" ? "var(--reason)" : "var(--hunger)";
+  }
+  function statLabel(key){
+    return key === "health" ? "체력" : key === "reason" ? "이성" : "허기";
+  }
+
+  function renderGrid(){
+    const q = searchInput.value.trim().toLowerCase();
+    const list = characters.filter(c => c.name.toLowerCase().includes(q));
+    countNumEl.textContent = characters.length;
+    addBtn.disabled = characters.length >= MAX_CHARS;
+    gridEl.innerHTML = "";
+
+    if(list.length === 0){
+      const div = document.createElement("div");
+      div.className = "empty-state";
+      div.innerHTML = characters.length === 0
+        ? "<h3>아직 등록된 캐릭터가 없어요</h3><p>‘+ 캐릭터 추가’를 눌러 첫 캐릭터를 만들어보세요.</p>"
+        : "<h3>검색 결과가 없어요</h3><p>다른 이름으로 검색해보세요.</p>";
+      gridEl.appendChild(div);
+      return;
+    }
+
+    list.forEach((c, i)=>{
+      const card = document.createElement("button");
+      card.className = "card";
+      card.type = "button";
+      card.setAttribute("aria-label", (c.name || "이름 없음") + " 편집");
+
+      const num = characters.indexOf(c) + 1;
+      const photoHtml = c.photo
+        ? `<img class="thumb" src="${c.photo}" alt="">`
+        : `<div class="thumb placeholder">${(c.name||"?").charAt(0)}</div>`;
+
+      const statsHtml = STAT_KEYS.map(k=>{
+        const v = c.stats[k] || 0;
+        let pips = "";
+        for(let p=1;p<=MAX_STAT;p++){
+          pips += `<div class="pip-mini" style="${p<=v ? `background:${statColor(k)};border-color:${statColor(k)}` : ""}"></div>`;
+        }
+        return `<div class="stat-mini"><span class="label" style="color:${statColor(k)}">${statLabel(k)}</span><div class="pips">${pips}</div></div>`;
+      }).join("");
+
+      card.innerHTML = `
+        <span class="tab">No. ${String(num).padStart(2,"0")}</span>
+        <div class="card-head">
+          ${photoHtml}
+          <div>
+            <div class="card-name">${escapeHtml(c.name) || "이름 없음"}</div>
+            ${c.status ? `<div class="card-status">${escapeHtml(c.status)}</div>` : ""}
+          </div>
+        </div>
+        <div class="stat-mini-row">${statsHtml}</div>
+        <div class="card-footer">
+          <span class="inv-count">소지품 ${c.inventory.length}개</span>
+        </div>
+      `;
+      card.addEventListener("click", ()=> openModal(c.id));
+      gridEl.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s){
+    return (s||"").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+
+  /* ---------- modal ---------- */
+  const overlay = document.getElementById("overlay");
+  const modalTitle = document.getElementById("modalTitle");
+  const nameInput = document.getElementById("nameInput");
+  const statusInput = document.getElementById("statusInput");
+  const photoPreview = document.getElementById("photoPreview");
+  const photoPlaceholder = document.getElementById("photoPlaceholder");
+  const photoInput = document.getElementById("photoInput");
+  const invList = document.getElementById("invList");
+  const invInput = document.getElementById("invInput");
+  const deleteBtn = document.getElementById("deleteBtn");
+
+  function buildPipEditors(){
+    STAT_KEYS.forEach(key=>{
+      const editor = document.querySelector(`.pip-editor[data-stat="${key}"]`);
+      editor.innerHTML = "";
+      for(let i=1;i<=MAX_STAT;i++){
+        const pip = document.createElement("button");
+        pip.type = "button";
+        pip.className = "pip";
+        pip.dataset.value = i;
+        pip.addEventListener("click", ()=>{
+          // clicking the currently-topmost filled pip again clears it
+          const cur = draft.stats[key] || 0;
+          draft.stats[key] = (cur === i) ? i-1 : i;
+          renderPips(key);
+        });
+        editor.appendChild(pip);
+      }
+    });
+  }
+  function renderPips(key){
+    const val = draft.stats[key] || 0;
+    const editor = document.querySelector(`.pip-editor[data-stat="${key}"]`);
+    [...editor.children].forEach((pip, idx)=>{
+      const filled = (idx+1) <= val;
+      pip.style.background = filled ? statColor(key) : "";
+      pip.style.borderColor = filled ? statColor(key) : "";
+    });
+    document.getElementById(key+"Val").textContent = `${val} / ${MAX_STAT}`;
+  }
+  function renderAllPips(){ STAT_KEYS.forEach(renderPips); }
+
+  function renderInvList(){
+    invList.innerHTML = "";
+    draft.inventory.forEach((item, idx)=>{
+      const chip = document.createElement("span");
+      chip.className = "inv-chip";
+      chip.innerHTML = `${escapeHtml(item)} <button type="button" aria-label="삭제">✕</button>`;
+      chip.querySelector("button").addEventListener("click", ()=>{
+        draft.inventory.splice(idx,1);
+        renderInvList();
+      });
+      invList.appendChild(chip);
+    });
+  }
+  function addInvItem(){
+    const v = invInput.value.trim();
+    if(!v) return;
+    draft.inventory.push(v);
+    invInput.value = "";
+    renderInvList();
+  }
+
+  function renderPhoto(){
+    if(draft.photo){
+      photoPreview.src = draft.photo;
+      photoPreview.style.display = "block";
+      photoPlaceholder.style.display = "none";
+    } else {
+      photoPreview.style.display = "none";
+      photoPlaceholder.style.display = "flex";
+      photoPlaceholder.textContent = (draft.name||"?").charAt(0) || "?";
+    }
+  }
+
+  function openModal(id){
+    currentId = id;
+    const existing = id ? characters.find(c=>c.id===id) : null;
+    draft = existing ? JSON.parse(JSON.stringify(existing)) : blankChar();
+
+    modalTitle.textContent = existing ? "캐릭터 편집" : "새 캐릭터";
+    nameInput.value = draft.name;
+    statusInput.value = draft.status;
+    deleteBtn.style.display = existing ? "inline-block" : "none";
+
+    renderPhoto();
+    renderAllPips();
+    renderInvList();
+    overlay.classList.add("open");
+    setTimeout(()=> nameInput.focus(), 50);
+  }
+  function closeModal(){
+    overlay.classList.remove("open");
+    currentId = null;
+    draft = null;
+  }
+
+  async function saveDraft(){
+    draft.name = nameInput.value.trim() || "이름 없음";
+    draft.status = statusInput.value.trim();
+    const isNew = !characters.some(c=>c.id===draft.id);
+    if(isNew && characters.length >= MAX_CHARS){
+      alert("정원이 가득 찼어요 (40 / 40). 다른 캐릭터를 먼저 삭제해주세요.");
+      return;
+    }
+    await dbPut(draft);
+    if(isNew){
+      characters.push(draft);
+    } else {
+      const idx = characters.findIndex(c=>c.id===draft.id);
+      characters[idx] = draft;
+    }
+    closeModal();
+    renderGrid();
+  }
+  async function deleteDraft(){
+    if(!draft) return;
+    if(!confirm(`'${draft.name || "이 캐릭터"}'를 삭제할까요?`)) return;
+    await dbDelete(draft.id);
+    characters = characters.filter(c=>c.id!==draft.id);
+    closeModal();
+    renderGrid();
+  }
+
+  /* ---------- photo upload: resize/crop to 250x250 ---------- */
+  function handlePhotoFile(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const size = 250;
+        const canvas = document.createElement("canvas");
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side)/2;
+        const sy = (img.height - side)/2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        draft.photo = canvas.toDataURL("image/jpeg", 0.87);
+        renderPhoto();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ---------- export / import ---------- */
+  function exportJson(){
+    const blob = new Blob([JSON.stringify(characters, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `oc-stat-dossier-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  async function importJson(file){
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!Array.isArray(data)) throw new Error("형식이 올바르지 않아요");
+      const merged = confirm("기존 데이터에 추가할까요?\n[확인] = 추가 / [취소] = 전체 교체");
+      if(!merged){
+        await dbClear();
+        characters = [];
+      }
+      for(const c of data){
+        if(characters.length >= MAX_CHARS) break;
+        const clean = {
+          id: c.id || uid(),
+          name: c.name || "이름 없음",
+          photo: c.photo || null,
+          stats: {
+            health: clampStat(c.stats?.health),
+            reason: clampStat(c.stats?.reason),
+            hunger: clampStat(c.stats?.hunger)
+          },
+          status: c.status || "",
+          inventory: Array.isArray(c.inventory) ? c.inventory : []
+        };
+        await dbPut(clean);
+        characters.push(clean);
+      }
+      renderGrid();
+      alert("불러오기가 끝났어요.");
+    } catch(err){
+      alert("파일을 읽는 중 문제가 생겼어요: " + err.message);
+    }
+  }
+  function clampStat(v){
+    v = Number(v) || 0;
+    return Math.max(0, Math.min(MAX_STAT, Math.round(v)));
+  }
+
+  /* ---------- wire up events ---------- */
+  document.getElementById("uploadBtn").addEventListener("click", ()=> photoInput.click());
+  photoInput.addEventListener("change", e=> handlePhotoFile(e.target.files[0]));
+  document.getElementById("removePhotoBtn").addEventListener("click", ()=>{ draft.photo = null; renderPhoto(); });
+  nameInput.addEventListener("input", ()=>{ if(!draft.photo) photoPlaceholder.textContent = nameInput.value.charAt(0) || "?"; });
+
+  document.getElementById("invAddBtn").addEventListener("click", addInvItem);
+  invInput.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); addInvItem(); } });
+
+  document.getElementById("saveBtn").addEventListener("click", saveDraft);
+  document.getElementById("cancelBtn").addEventListener("click", closeModal);
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+  deleteBtn.addEventListener("click", deleteDraft);
+  overlay.addEventListener("click", e=>{ if(e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", e=>{ if(e.key === "Escape" && overlay.classList.contains("open")) closeModal(); });
+
+  addBtn.addEventListener("click", ()=> openModal(null));
+  searchInput.addEventListener("input", renderGrid);
+
+  document.getElementById("exportBtn").addEventListener("click", exportJson);
+  const importFile = document.getElementById("importFile");
+  document.getElementById("importBtn").addEventListener("click", ()=> importFile.click());
+  importFile.addEventListener("change", e=> importJson(e.target.files[0]));
+
+  buildPipEditors();
+
+  /* ---------- init ---------- */
+  openDB().then(async ()=>{
+    characters = await dbGetAll();
+    renderGrid();
+  }).catch(err=>{
+    console.error(err);
+    alert("브라우저 저장소를 여는 데 실패했어요. 시크릿 모드가 아닌지 확인해주세요.");
+  });
+})();
+</script>
+</body>
+</html>
