@@ -3,28 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>상태기록지</title>
+<title>생존일지</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#eef4f9;
-    --bg-grid: #e2ecf3;
+    --bg:#f1f2f4;
+    --bg-grid: #e6e8ea;
     --surface:#ffffff;
-    --surface-2:#f2f7fb;
-    --border:#d6e3ed;
-    --border-soft:#e6eef4;
+    --surface-2:#f4f5f7;
+    --border:#dcdfe3;
+    --border-soft:#eaecef;
     --text:#28394a;
     --text-muted:#65798c;
     --text-faint:#9db0c0;
     --accent:#3f93c9;
     --accent-soft:#3f93c92a;
-    --health:#3fb99b;
+    --health:#00c853;
     --reason:#7d90d6;
     --hunger:#e2a350;
     --danger:#d15c56;
     --radius:10px;
+    --card-radius:4px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -42,147 +43,159 @@
   button{font-family:inherit;}
   .wrap{max-width:1180px;margin:0 auto;padding:36px 20px 0;}
 
-  /* header */
   header.top{
     display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;
     border-bottom:1px solid var(--border);
     padding-bottom:22px;margin-bottom:26px;
   }
-  .title-block .eyebrow{
-    color:var(--accent);font-size:13px;letter-spacing:.02em;margin-bottom:6px;font-weight:500;
+  .title-block .eyebrow{color:var(--accent);font-size:13px;letter-spacing:.02em;margin-bottom:6px;font-weight:500;}
+  .title-block h1{
+    font-family:"Nanum Brush Script", "Gowun Batang", serif;
+    font-size:52px;font-weight:400;color:var(--text);
+    letter-spacing:.01em;
+    transform:rotate(-0.5deg);display:inline-block;
   }
-  .title-block h1{font-size:32px;font-weight:700;color:var(--text);}
   .title-block p{margin:6px 0 0;color:var(--text-muted);font-size:14px;}
   .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-  .count-pill{
-    border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-size:13px;color:var(--text-muted);
-    background:var(--surface);
-  }
+  .count-pill{border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-size:13px;color:var(--text-muted);background:var(--surface);}
   .count-pill b{color:var(--text);font-family:"Gowun Batang",serif;font-size:15px;}
-  .search-input{
-    background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;
-    padding:9px 12px;font-size:14px;width:180px;outline:none;
-  }
+  .search-input{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:14px;width:180px;outline:none;}
   .search-input:focus{border-color:var(--accent);}
-  .btn{
-    border:1px solid var(--border);background:var(--surface);color:var(--text);
-    padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;transition:border-color .15s, background .15s;
-  }
+  .btn{border:1px solid var(--border);background:var(--surface);color:var(--text);padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;transition:border-color .15s, background .15s;}
   .btn:hover{border-color:var(--accent);}
-  .btn:focus-visible, .search-input:focus-visible, .pip:focus-visible, .card:focus-visible{
-    outline:2px solid var(--accent);outline-offset:2px;
-  }
+  .btn:focus-visible, .search-input:focus-visible, .card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .btn.ghost{background:transparent;}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#ffffff;font-weight:700;}
   .btn.primary:hover{filter:brightness(1.08);}
-  .btn.ghost{background:transparent;}
-  .btn.danger{color:var(--danger);border-color:#e7c6c3;}
-  .btn.danger:hover{border-color:var(--danger);}
-  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .status-line{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-faint);}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--health);}
+  .status-dot.stale{background:var(--danger);}
 
-  /* grid */
-  .grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:16px;
-  }
+  .grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:14px;}
   .card{
-    position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:16px 14px 14px;cursor:pointer;text-align:left;color:inherit;font:inherit;
-    display:flex;flex-direction:column;gap:10px;transition:border-color .15s, transform .1s;
+    position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);
+    padding:10px 10px 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;
+    display:flex;flex-direction:column;gap:8px;transition:border-color .15s, transform .1s;
   }
   .card:hover{border-color:var(--accent);}
+  .card.stat-warning{background:#fbdede;}
+  .card.stat-critical{background:#7a1f1f;border-color:#7a1f1f;}
+  .card.stat-critical .card-name,
+  .card.stat-critical .stat-mini,
+  .card.stat-critical .inv-count,
+  .card.stat-critical .updated-note{color:#fdeaea;}
+  .card.stat-critical .pip-mini{border-color:rgba(255,255,255,.45);}
+  .card.stat-critical .card-photo-wrap{border-color:rgba(255,255,255,.3);}
   .card:active{transform:scale(.99);}
-  .tab{
-    position:absolute;top:-1px;left:14px;background:var(--surface-2);border:1px solid var(--border);border-top:none;
-    border-radius:0 0 6px 6px;padding:2px 8px;font-size:11px;color:var(--text-faint);letter-spacing:.03em;
-  }
-  .card-head{display:flex;gap:12px;align-items:center;margin-top:6px;}
-  .thumb{
-    width:64px;height:64px;border-radius:8px;object-fit:cover;background:var(--surface-2);border:1px solid var(--border-soft);flex-shrink:0;
-  }
-  .thumb.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:22px;}
-  .card-name{font-family:"Gowun Batang",serif;font-size:17px;font-weight:700;line-height:1.3;word-break:break-all;}
-  .card-status{font-size:12px;color:var(--accent);margin-top:2px;}
-  .stat-mini-row{display:flex;flex-direction:column;gap:6px;}
+  .card-photo-wrap{width:100%;aspect-ratio:1/1;border-radius:var(--card-radius);overflow:hidden;background:var(--surface-2);border:1px solid var(--border-soft);}
+  .card-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .card-photo-wrap.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:34px;}
+  .card-name{font-family:"Gowun Batang",serif;font-size:16px;font-weight:700;line-height:1.3;word-break:break-all;text-align:center;}
+  .card-status{font-size:12px;font-weight:700;text-align:center;}
+  .stat-mini-row{display:flex;flex-direction:column;gap:5px;}
   .stat-mini{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);}
   .stat-mini .label{width:26px;flex-shrink:0;}
   .pips{display:flex;gap:3px;}
   .pip-mini{width:11px;height:11px;border-radius:2px;border:1px solid var(--border);background:transparent;}
-  .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:2px;border-top:1px solid var(--border-soft);padding-top:9px;}
+  .card-footer{display:flex;flex-direction:column;gap:4px;margin-top:2px;border-top:1px solid var(--border-soft);padding-top:9px;}
   .inv-count{font-size:11px;color:var(--text-faint);}
+  .updated-note{font-size:10.5px;color:var(--text-faint);}
 
-  .empty-state{
-    grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--radius);padding:60px 20px;text-align:center;color:var(--text-muted);
-  }
+  .empty-state{grid-column:1/-1;border:1px dashed var(--border);border-radius:var(--radius);padding:60px 20px;text-align:center;color:var(--text-muted);}
   .empty-state h3{color:var(--text);margin-bottom:8px;font-size:18px;}
 
-  /* modal */
-  .overlay{
-    position:fixed;inset:0;background:rgba(22,40,58,.45);display:none;align-items:flex-start;justify-content:center;
-    padding:40px 16px;overflow-y:auto;z-index:50;
-  }
+  .overlay{position:fixed;inset:0;background:rgba(22,40,58,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50;}
   .overlay.open{display:flex;}
-  .modal{
-    background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:640px;width:100%;
-    padding:28px 26px 24px;
-  }
-  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:560px;width:100%;padding:28px 26px 24px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
   .modal-head h2{font-size:22px;}
   .close-x{background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;padding:4px;}
   .close-x:hover{color:var(--text);}
+  .updated-line{font-size:12px;color:var(--text-faint);margin-bottom:18px;}
 
   .field{margin-bottom:18px;}
   .field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px;letter-spacing:.02em;}
-  .field input[type=text], .field textarea{
-    width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
-    border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;
-  }
-  .field input[type=text]:focus, .field textarea:focus{border-color:var(--accent);}
+  .field .value{font-size:14px;line-height:1.5;}
 
-  .photo-row{display:flex;gap:16px;align-items:center;}
-  .photo-preview{
-    width:100px;height:100px;border-radius:10px;object-fit:cover;background:var(--surface-2);border:1px solid var(--border);flex-shrink:0;
-  }
-  .photo-preview.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:32px;}
-  .photo-controls{display:flex;flex-direction:column;gap:8px;}
-  .photo-controls small{color:var(--text-faint);font-size:11px;}
-  input[type=file]{display:none;}
+  .photo-row{display:flex;gap:16px;align-items:center;margin-bottom:20px;}
+  .photo-preview{width:120px;height:120px;border-radius:10px;object-fit:cover;background:var(--surface-2);border:1px solid var(--border);flex-shrink:0;}
+  .photo-preview.placeholder{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-family:"Gowun Batang",serif;font-size:38px;}
 
-  .stat-block{display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+  .stat-block{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
   .stat-row{display:flex;align-items:center;gap:14px;}
   .stat-row .label{width:46px;font-size:13px;color:var(--text-muted);flex-shrink:0;}
-  .pip-editor{display:flex;gap:6px;}
-  .pip{
-    width:28px;height:28px;border-radius:5px;border:1px solid var(--border);background:var(--surface-2);cursor:pointer;
-    transition:transform .08s;
-  }
-  .pip:hover{transform:translateY(-1px);}
+  .pip-view{display:flex;gap:6px;}
+  .pip-view .pip{width:24px;height:24px;border-radius:5px;border:1px solid var(--border);background:var(--surface-2);padding:0;margin:0;}
+  .pip-view.editable .pip{cursor:pointer;transition:transform .08s;}
+  .pip-view.editable .pip:hover{transform:translateY(-1px);border-color:var(--accent);}
   .stat-value{font-size:12px;color:var(--text-faint);width:34px;text-align:right;}
 
-  .inv-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;min-height:20px;}
+  .inv-list{display:flex;flex-wrap:wrap;gap:8px;min-height:20px;}
   .inv-chip{
-    display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);
+    display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);
     border-radius:999px;padding:6px 8px 6px 12px;font-size:12.5px;
   }
-  .inv-chip button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;}
-  .inv-chip button:hover{color:var(--danger);}
-  .inv-add{display:flex;gap:8px;}
-  .inv-add input{flex:1;}
-
-  .modal-actions{display:flex;justify-content:space-between;margin-top:24px;padding-top:18px;border-top:1px solid var(--border-soft);}
-  .modal-actions .right{display:flex;gap:8px;}
+  .inv-chip .effect{color:var(--accent);font-size:11px;}
+  .inv-chip .use-btn{
+    border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:999px;
+    font-size:11px;padding:3px 9px;cursor:pointer;
+  }
+  .inv-chip .use-btn:hover{filter:brightness(1.08);}
+  .inv-chip.used{opacity:.6;}
+  .inv-chip.used .name, .inv-chip.used .effect{text-decoration:line-through;color:var(--text-faint);}
+  .used-tag{font-size:10px;color:var(--text-faint);border:1px solid var(--border);border-radius:999px;padding:2px 7px;}
+  .admin-banner{
+    display:none;font-size:12px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);
+    border-radius:8px;padding:8px 12px;margin-bottom:16px;
+  }
+  body.is-admin-mode .admin-banner{display:block;}
+  .bulk-btn{display:none;}
+  body.is-admin-mode .bulk-btn{display:inline-block;}
+  .admin-block{display:none;}
+  body.is-admin-mode .admin-block{display:block;}
 
   footer.bottom{
     max-width:1180px;margin:40px auto 0;padding:20px;border-top:1px solid var(--border);
     display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
     color:var(--text-faint);font-size:12px;
   }
-  footer.bottom .actions{display:flex;gap:8px;}
+
+  @media (max-width:1100px){ .grid{grid-template-columns:repeat(4, 1fr);} }
+  @media (max-width:760px){ .grid{grid-template-columns:repeat(3, 1fr);} }
+
+  .campfire{margin-bottom:24px;}
+  .campfire-image-wrap{
+    position:relative;width:300px;height:300px;max-width:100%;margin:0 auto;overflow:hidden;
+    background:transparent;border:none;
+  }
+  .campfire-image{width:100%;height:100%;object-fit:contain;display:block;}
+  .campfire-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;}
+  .campfire-caption{
+    margin-top:8px;font-size:14px;color:var(--text-muted);font-style:italic;
+  }
+  .campfire-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:var(--text-muted);flex-wrap:wrap;gap:6px;}
+  .guard-today b{color:var(--accent);}
+  .campfire-admin{display:none;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+  body.is-admin-mode .campfire-admin{display:flex;}
+  .campfire-admin select{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;
+    padding:8px 10px;font-size:13px;font-family:inherit;
+  }
+
+  .action-log-list{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow-y:auto;margin-bottom:4px;}
+  .action-log-row{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12.5px;
+  }
+  .action-log-row .cancel-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:11px;flex-shrink:0;}
+  .action-log-row .cancel-btn:hover{color:var(--danger);}
 
   @media (max-width:520px){
     .wrap{padding:24px 14px 0;}
     header.top{flex-direction:column;align-items:stretch;}
     .top-actions{justify-content:space-between;}
     .search-input{flex:1;width:auto;}
-    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+    .grid{grid-template-columns:repeat(2, 1fr);}
     .modal{padding:22px 18px 20px;}
   }
 </style>
@@ -192,95 +205,162 @@
 <div class="wrap">
   <header class="top">
     <div class="title-block">
-      <div class="eyebrow">Snow Field Archive</div>
-      <h1>상태기록지</h1>
-      <p>체력 · 이성 · 허기 상태와 소지품을 한눈에 기록하세요.</p>
+      <h1>생존일지</h1>
     </div>
     <div class="top-actions">
       <input type="text" id="searchInput" class="search-input" placeholder="이름 검색...">
-      <span class="count-pill"><b id="countNum">0</b> / 40</span>
-      <button class="btn primary" id="addBtn">+ 캐릭터 추가</button>
+      <span class="count-pill"><b id="countNum">0</b>명</span>
+      <span class="status-line"><span class="status-dot" id="statusDot"></span><span id="statusText">불러오는 중...</span></span>
+      <button class="btn ghost" id="refreshBtn">새로고침</button>
+      <button class="btn ghost" id="adminModeBtn">관리자 모드 켜기</button>
+      <button class="btn ghost bulk-btn" id="bulkHungerBtn">전체 허기 -1</button>
+      <button class="btn ghost bulk-btn" id="createCharBtn">+ 캐릭터 만들기</button>
     </div>
   </header>
+
+  <div class="campfire">
+    <button class="btn ghost" id="bgmBtn" type="button" style="margin-bottom:10px;">모닥불♪</button>
+    <audio id="bgm" src="bgm.mp3" loop preload="none"></audio>
+    <div class="campfire-image-wrap">
+      <img id="campfireImg" class="campfire-image" style="display:none;">
+      <div id="campfirePlaceholder" class="campfire-placeholder">▲</div>
+    </div>
+    <div class="campfire-caption" id="campfireCaption"></div>
+    <div class="campfire-meta">
+      <span class="guard-today" id="guardToday"></span>
+      <span id="roundLabel">-</span>
+    </div>
+    <div class="campfire-admin">
+      <select id="fireStateSelect">
+        <option value="꺼짐">꺼짐</option>
+        <option value="위태로움">위태로움</option>
+        <option value="약함">약함</option>
+        <option value="보통">보통</option>
+        <option value="강함">강함</option>
+      </select>
+      <button class="btn ghost" id="setFireBtn" type="button">모닥불 상태 적용</button>
+      <button class="btn ghost" id="advanceRoundBtn" type="button">다음 라운드로</button>
+    </div>
+  </div>
 
   <div class="grid" id="grid"></div>
 </div>
 
-<footer class="bottom">
-  <span>데이터는 이 브라우저에만 저장돼요. 다른 기기와 공유하려면 내보내기를 이용하세요.</span>
-  <span class="actions">
-    <button class="btn ghost" id="exportBtn">내보내기 (JSON)</button>
-    <button class="btn ghost" id="importBtn">불러오기</button>
-    <input type="file" id="importFile" accept="application/json">
-  </span>
-</footer>
-
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="modal-head">
-      <h2 id="modalTitle">새 캐릭터</h2>
+      <h2 id="modalName">이름</h2>
       <button class="close-x" id="closeModal">✕</button>
     </div>
+    <div class="updated-line" id="modalUpdated"></div>
+    <div class="admin-banner">관리자 모드 · 아이템의 ‘사용’ 버튼을 누르면 스탯에 바로 반영돼요.</div>
 
-    <div class="field">
-      <label>두상 사진 (250×250으로 자동 조정돼요)</label>
-      <div class="photo-row">
-        <img id="photoPreview" class="photo-preview" style="display:none">
-        <div id="photoPlaceholder" class="photo-preview placeholder">?</div>
-        <div class="photo-controls">
-          <button class="btn" id="uploadBtn" type="button">사진 선택</button>
-          <button class="btn ghost" id="removePhotoBtn" type="button">사진 삭제</button>
-          <small>정사각형으로 잘라서 저장돼요</small>
-        </div>
-        <input type="file" id="photoInput" accept="image/*">
+    <div class="photo-row">
+      <img id="modalPhoto" class="photo-preview" style="display:none">
+      <div id="modalPhotoPlaceholder" class="photo-preview placeholder">?</div>
+    </div>
+
+    <div class="admin-block" id="editCharBlock" style="margin-bottom:18px;padding:12px;border:1px dashed var(--border-soft);border-radius:8px;">
+      <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;">이름 / 사진 수정 (관리자)</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <input type="text" id="editName" placeholder="이름" style="flex:1;min-width:100px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;">
+        <input type="text" id="editPhoto" placeholder="사진 URL" style="flex:2;min-width:140px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;">
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <button class="btn danger" id="deleteCharBtn" type="button">캐릭터 삭제</button>
+        <button class="btn primary" id="saveCharBtn" type="button">저장</button>
       </div>
     </div>
 
-    <div class="field">
-      <label>이름</label>
-      <input type="text" id="nameInput" placeholder="캐릭터 이름">
-    </div>
-
-    <div class="field">
-      <label>스탯 (최대 5, 박스를 클릭해서 값을 설정하세요)</label>
-      <div class="stat-block">
-        <div class="stat-row">
-          <span class="label" style="color:var(--health)">체력</span>
-          <div class="pip-editor" data-stat="health"></div>
-          <span class="stat-value" id="healthVal">0 / 5</span>
-        </div>
-        <div class="stat-row">
-          <span class="label" style="color:var(--reason)">이성</span>
-          <div class="pip-editor" data-stat="reason"></div>
-          <span class="stat-value" id="reasonVal">0 / 5</span>
-        </div>
-        <div class="stat-row">
-          <span class="label" style="color:var(--hunger)">허기</span>
-          <div class="pip-editor" data-stat="hunger"></div>
-          <span class="stat-value" id="hungerVal">0 / 5</span>
-        </div>
-      </div>
-    </div>
+    <div class="stat-block" id="modalStats"></div>
 
     <div class="field">
       <label>상태</label>
-      <input type="text" id="statusInput" placeholder="예: 정상, 부상, 실종, 도주 중...">
+      <div class="value" id="modalStatus">-</div>
     </div>
 
     <div class="field">
       <label>소지품</label>
-      <div class="inv-list" id="invList"></div>
-      <div class="inv-add">
-        <input type="text" id="invInput" placeholder="아이템 이름 입력 후 Enter">
-        <button class="btn" id="invAddBtn" type="button">추가</button>
+      <div class="inv-list" id="modalInv"></div>
+
+      <div class="admin-block" id="addItemBlock" style="margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+        <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px;">아이템 등록</label>
+        <input type="text" id="newItemName" placeholder="아이템 이름" style="width:100%;margin-bottom:8px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;">
+
+        <div id="newItemEffects"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+          <button type="button" class="btn ghost" id="addEffectRowBtn" style="font-size:12px;padding:5px 10px;">+ 효과 추가</button>
+          <button class="btn primary" id="addItemBtn" type="button">등록</button>
+        </div>
       </div>
     </div>
 
+    <div class="field">
+      <label>행동 기록</label>
+      <div class="action-log-list" id="actionLogList"></div>
+
+      <div class="admin-block" id="logActionBlock" style="margin-top:10px;padding-top:12px;border-top:1px dashed var(--border-soft);">
+        <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:7px;">이번 라운드 행동 <span id="currentRoundTag"></span></label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <select id="actionSelect" style="flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;"></select>
+          <button class="btn primary" id="logActionBtn" type="button">기록</button>
+        </div>
+        <p id="actionNote" style="font-size:12px;color:var(--text-faint);margin:8px 0 0;"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 캐릭터 만들기 모달 -->
+<div class="overlay" id="createOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>캐릭터 만들기</h2>
+      <button class="close-x" id="closeCreateModal">✕</button>
+    </div>
+
+    <div class="field">
+      <label>이름</label>
+      <input type="text" id="createName" placeholder="캐릭터 이름">
+    </div>
+
+    <div class="field">
+      <label>사진 URL (선택)</label>
+      <input type="text" id="createPhoto" placeholder="https://i.imgur.com/xxxxxxx.jpg">
+    </div>
+
+    <div class="field">
+      <label>초기 스탯</label>
+      <div class="stat-block" id="createStats"></div>
+    </div>
+
     <div class="modal-actions">
-      <button class="btn danger" id="deleteBtn">삭제</button>
+      <span></span>
       <div class="right">
-        <button class="btn ghost" id="cancelBtn">취소</button>
-        <button class="btn primary" id="saveBtn">저장</button>
+        <button class="btn ghost" id="createCancelBtn">취소</button>
+        <button class="btn primary" id="createConfirmBtn">만들기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 아이템 효과 대상 선택 모달 -->
+<div class="overlay" id="targetOverlay">
+  <div class="modal small">
+    <div class="modal-head">
+      <h2>누구에게 쓸까요?</h2>
+      <button class="close-x" id="closeTargetModal">✕</button>
+    </div>
+    <p id="targetEffectText" style="font-size:13px;color:var(--text-muted);margin:0 0 14px;"></p>
+    <div class="field" style="margin-bottom:8px;">
+      <label>대상 캐릭터</label>
+      <select id="targetSelect" style="width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;"></select>
+    </div>
+    <div class="modal-actions" style="border-top:none;padding-top:4px;margin-top:8px;">
+      <span></span>
+      <div class="right">
+        <button class="btn ghost" id="targetCancelBtn">취소</button>
+        <button class="btn primary" id="targetConfirmBtn">적용</button>
       </div>
     </div>
   </div>
@@ -289,116 +369,291 @@
 <script>
 (function(){
   "use strict";
-  const MAX_CHARS = 40;
+
+  /* =========================================================
+     아래 두 값만 채우면 됩니다.
+     SHEET_ID : 스프레드시트 주소 중 /d/ 와 /edit 사이의 긴 문자열
+     SHEET_GID: 시트 하단 탭을 클릭했을 때 주소 끝의 #gid=숫자 (기본 탭은 보통 0)
+     ========================================================= */
+  const SHEET_ID = "17SnRl0zLztURQiPrb5yN5c1K27TvAQKdgy92Oob09zg";
+  const SHEET_GID = "0";
+  // Apps Script 웹 앱 배포 후 나오는 URL을 여기에 붙여넣으세요 (아이템 '사용' 기능에 필요해요)
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeOn3KKwKdjujdVhbanRYCeUWtNuNAmyoA0wdWNpyadO8KNJ16QAGu-09oPHaF4rBL_w/exec";
+
   const MAX_STAT = 5;
-  const STAT_KEYS = ["health","reason","hunger"];
+  const MAX_CHARS = 100;
+  const REFRESH_MS = 30000;
 
-  /* ---------- IndexedDB helpers ---------- */
-  let db;
-  function openDB(){
-    return new Promise((resolve, reject)=>{
-      const req = indexedDB.open("ocStatDossier", 1);
-      req.onupgradeneeded = e=>{
-        const d = e.target.result;
-        if(!d.objectStoreNames.contains("characters")){
-          d.createObjectStore("characters", {keyPath:"id"});
-        }
-      };
-      req.onsuccess = e=>{ db = e.target.result; resolve(db); };
-      req.onerror = e=> reject(e);
-    });
-  }
-  function txStore(mode){
-    return db.transaction("characters", mode).objectStore("characters");
-  }
-  function dbGetAll(){
-    return new Promise((resolve, reject)=>{
-      const req = txStore("readonly").getAll();
-      req.onsuccess = ()=> resolve(req.result || []);
-      req.onerror = e=> reject(e);
-    });
-  }
-  function dbPut(char){
-    return new Promise((resolve, reject)=>{
-      const req = txStore("readwrite").put(char);
-      req.onsuccess = ()=> resolve();
-      req.onerror = e=> reject(e);
-    });
-  }
-  function dbDelete(id){
-    return new Promise((resolve, reject)=>{
-      const req = txStore("readwrite").delete(id);
-      req.onsuccess = ()=> resolve();
-      req.onerror = e=> reject(e);
-    });
-  }
-  function dbClear(){
-    return new Promise((resolve, reject)=>{
-      const req = txStore("readwrite").clear();
-      req.onsuccess = ()=> resolve();
-      req.onerror = e=> reject(e);
-    });
+  // Apps Script와 동일한 라운드 순서/행동 정의
+  const ROUNDS = [
+    { day:1, phase:"밤", label:"1일차 밤" },
+    { day:2, phase:"낮", label:"2일차 낮" },
+    { day:2, phase:"밤", label:"2일차 밤" },
+    { day:3, phase:"낮", label:"3일차 낮" },
+    { day:3, phase:"밤", label:"3일차 밤" },
+    { day:4, phase:"낮", label:"4일차 낮" },
+    { day:4, phase:"밤", label:"4일차 밤" },
+    { day:5, phase:"낮", label:"5일차 낮" }
+  ];
+  const DAY_ACTIONS = { "장작":"이성 -1", "정찰":"체력 -1", "휴식":"변화 없음" };
+  const NIGHT_ACTIONS = { "보초":"체력 -2", "수면":"체력 +1" };
+
+  let settings = {};
+  let actionLog = [];
+
+  function currentRoundIndex(){
+    const day = Number(settings["현재일차"]);
+    const phase = settings["현재시간대"];
+    for(let i=0;i<ROUNDS.length;i++){
+      if(ROUNDS[i].day === day && ROUNDS[i].phase === phase) return i;
+    }
+    return -1;
   }
 
-  /* ---------- state ---------- */
   let characters = [];
-  let currentId = null; // character being edited in modal, null = new
-  let draft = null;     // working copy while modal is open
+  let isAdminMode = false;
+  let adminPassword = "";
+  let currentModalChar = null;
 
-  function uid(){
-    return (crypto.randomUUID ? crypto.randomUUID() : "id-"+Date.now()+"-"+Math.random().toString(16).slice(2));
-  }
-  function blankChar(){
-    return {
-      id: uid(),
-      name: "",
-      photo: null,
-      stats: {health:0, reason:0, hunger:0},
-      status: "",
-      inventory: []
-    };
+  /* 소지품 표기 규칙: "이름" 또는 "이름:체력+1" / "이름:이성-1이성-2" 처럼 효과를 이어붙여 여러 개 지정 가능
+     사용된 아이템은 서버가 끝에 * 를 붙여 표시해요 (직접 입력하지 마세요) */
+  function parseItem(rawInput){
+    let used = false;
+    let raw = rawInput;
+    if(raw.endsWith("*")){ used = true; raw = raw.slice(0, -1); }
+    const colonIdx = raw.indexOf(":");
+    const name = (colonIdx === -1 ? raw : raw.slice(0, colonIdx)).trim();
+    const effects = [];
+    if(colonIdx !== -1){
+      const effectStr = raw.slice(colonIdx + 1);
+      const re = /(체력|이성|허기)\s*([+-]\d+)/g;
+      let m;
+      while((m = re.exec(effectStr)) !== null){
+        effects.push({
+          statLabel: m[1],
+          statKey: m[1] === "체력" ? "health" : m[1] === "이성" ? "reason" : "hunger",
+          delta: Number(m[2])
+        });
+      }
+    }
+    return { name, raw: rawInput, effects, hasEffect: effects.length > 0, used };
   }
 
-  /* ---------- rendering: grid ---------- */
+  /* ---------- CSV 파서 (쉼표/줄바꿈이 포함된 셀도 처리) ---------- */
+  function parseCSV(text){
+    const rows = [];
+    let row = [], field = "", inQuotes = false;
+    for(let i=0;i<text.length;i++){
+      const c = text[i];
+      if(inQuotes){
+        if(c === '"'){
+          if(text[i+1] === '"'){ field += '"'; i++; }
+          else inQuotes = false;
+        } else field += c;
+      } else {
+        if(c === '"') inQuotes = true;
+        else if(c === ','){ row.push(field); field = ""; }
+        else if(c === '\n'){ row.push(field); rows.push(row); row = []; field = ""; }
+        else if(c === '\r'){ /* skip */ }
+        else field += c;
+      }
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function colIndex(header, name, fallback){
+    const i = header.findIndex(h => h.trim() === name);
+    return i >= 0 ? i : fallback;
+  }
+  function clampStat(v){
+    v = Number(v) || 0;
+    return Math.max(0, Math.min(MAX_STAT, Math.round(v)));
+  }
+  function escapeHtml(s){
+    return (s||"").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+
+  function sheetUrl(){
+    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}&_=${Date.now()}`;
+  }
+
+  const statusDot = document.getElementById("statusDot");
+  const statusText = document.getElementById("statusText");
+
+  async function loadData(){
+    try{
+      const res = await fetch(sheetUrl());
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+      const rows = parseCSV(text);
+      if(rows.length === 0){ characters = []; renderGrid(); return; }
+      const header = rows[0];
+      const idxName = colIndex(header, "이름", 0);
+      const idxPhoto = colIndex(header, "사진URL", 1);
+      const idxHealth = colIndex(header, "체력", 2);
+      const idxReason = colIndex(header, "이성", 3);
+      const idxHunger = colIndex(header, "허기", 4);
+      const idxStatus = colIndex(header, "상태", 5);
+      const idxInv = colIndex(header, "소지품", 6);
+      const idxUpdated = colIndex(header, "최종수정", 7);
+
+      characters = rows.slice(1)
+        .map((r, idx) => ({
+          row: idx + 2,
+          name: (r[idxName]||"").trim(),
+          photo: (r[idxPhoto]||"").trim(),
+          stats: {
+            health: clampStat(r[idxHealth]),
+            reason: clampStat(r[idxReason]),
+            hunger: clampStat(r[idxHunger])
+          },
+          status: (r[idxStatus]||"").trim(),
+          inventory: (r[idxInv]||"").split(",").map(s=>s.trim()).filter(Boolean),
+          updatedAt: (r[idxUpdated]||"").trim()
+        }))
+        .filter(c => c.name !== "");
+
+      renderGrid();
+      statusDot.classList.remove("stale");
+      statusText.textContent = "방금 갱신됨 · " + new Date().toLocaleTimeString("ko-KR");
+    } catch(err){
+      console.error(err);
+      statusDot.classList.add("stale");
+      statusText.textContent = "불러오기 실패";
+      gridEl.innerHTML = '<div class="empty-state"><h3>데이터를 불러오지 못했어요</h3><p>스프레드시트 ID/공유 설정(링크가 있는 모든 사용자: 뷰어)을 확인해주세요.</p></div>';
+    }
+  }
+
+  /* ---------- 모닥불 / 라운드 / 행동기록 데이터 ---------- */
+  async function loadMeta(){
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0) return;
+    try{
+      const [sRes, lRes] = await Promise.all([
+        fetch(`${APPS_SCRIPT_URL}?action=getSettings`),
+        fetch(`${APPS_SCRIPT_URL}?action=getLog`)
+      ]);
+      const sData = await sRes.json();
+      const lData = await lRes.json();
+      if(sData.ok) settings = sData.settings || {};
+      if(lData.ok) actionLog = lData.entries || [];
+      renderCampfire();
+      if(currentModalChar) renderActionSection(currentModalChar);
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  const campfireImg = document.getElementById("campfireImg");
+  const campfirePlaceholder = document.getElementById("campfirePlaceholder");
+  const campfireCaption = document.getElementById("campfireCaption");
+  const roundLabelEl = document.getElementById("roundLabel");
+  const guardTodayEl = document.getElementById("guardToday");
+  const fireStateSelect = document.getElementById("fireStateSelect");
+
+  function renderCampfire(){
+    const state = settings["모닥불상태"] || "보통";
+    const imgUrl = settings["이미지_" + state];
+    const caption = settings["대사_" + state] || "";
+    if(imgUrl){
+      campfireImg.src = imgUrl;
+      campfireImg.style.display = "block";
+      campfirePlaceholder.style.display = "none";
+      campfireImg.onerror = ()=>{ campfireImg.style.display = "none"; campfirePlaceholder.style.display = "flex"; };
+    } else {
+      campfireImg.style.display = "none";
+      campfirePlaceholder.style.display = "flex";
+    }
+    campfireCaption.textContent = `[${state}] ${caption}`;
+    fireStateSelect.value = state;
+
+    const idx = currentRoundIndex();
+    if(idx === -1){
+      roundLabelEl.textContent = "라운드 미설정";
+      guardTodayEl.textContent = "";
+      return;
+    }
+    const round = ROUNDS[idx];
+    roundLabelEl.textContent = `지금: ${round.label} (${idx+1}/${ROUNDS.length}라운드)`;
+    if(round.phase === "밤"){
+      const guards = actionLog.filter(e => e.round === idx+1 && e.action === "보초").map(e => e.name);
+      guardTodayEl.innerHTML = guards.length ? `오늘의 보초: <b>${guards.map(escapeHtml).join(", ")}</b>` : "오늘의 보초: 아직 없음";
+    } else {
+      guardTodayEl.textContent = "";
+    }
+  }
+
+  document.getElementById("setFireBtn").addEventListener("click", async ()=>{
+    if(!isAdminMode) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){ alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요."); return; }
+    const url = `${APPS_SCRIPT_URL}?action=setFireStatus&state=${encodeURIComponent(fireStateSelect.value)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "적용 실패"); return; }
+      loadMeta();
+    }catch(err){ console.error(err); alert("서버에 연결하지 못했어요."); }
+  });
+
+  document.getElementById("advanceRoundBtn").addEventListener("click", async ()=>{
+    if(!isAdminMode) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){ alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요."); return; }
+    if(!confirm("다음 라운드로 넘어갈까요?")) return;
+    const url = `${APPS_SCRIPT_URL}?action=advanceRound&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "실패했어요."); return; }
+      loadMeta();
+    }catch(err){ console.error(err); alert("서버에 연결하지 못했어요."); }
+  });
+
+  /* ---------- 렌더링 ---------- */
   const gridEl = document.getElementById("grid");
   const countNumEl = document.getElementById("countNum");
   const searchInput = document.getElementById("searchInput");
-  const addBtn = document.getElementById("addBtn");
+  const STAT_KEYS = ["health","reason","hunger"];
 
-  function statColor(key){
-    return key === "health" ? "var(--health)" : key === "reason" ? "var(--reason)" : "var(--hunger)";
-  }
-  function statLabel(key){
-    return key === "health" ? "체력" : key === "reason" ? "이성" : "허기";
+  function statColor(key){ return key === "health" ? "var(--health)" : key === "reason" ? "var(--reason)" : "var(--hunger)"; }
+  function statLabel(key){ return key === "health" ? "체력" : key === "reason" ? "이성" : "허기"; }
+
+  /* 이성 수치에 따른 정신 상태 표시 */
+  function reasonStatus(reason){
+    if(reason >= 4) return {label:"정상", color:"var(--health)", glow:false};
+    if(reason >= 2) return {label:"혼란", color:"var(--hunger)", glow:false};
+    if(reason === 1) return {label:"공포와 망상", color:"#8b1e1e", glow:false};
+    return {label:"정신 붕괴", color:"#ff1744", glow:true};
   }
 
   function renderGrid(){
     const q = searchInput.value.trim().toLowerCase();
     const list = characters.filter(c => c.name.toLowerCase().includes(q));
     countNumEl.textContent = characters.length;
-    addBtn.disabled = characters.length >= MAX_CHARS;
     gridEl.innerHTML = "";
 
     if(list.length === 0){
       const div = document.createElement("div");
       div.className = "empty-state";
       div.innerHTML = characters.length === 0
-        ? "<h3>아직 등록된 캐릭터가 없어요</h3><p>‘+ 캐릭터 추가’를 눌러 첫 캐릭터를 만들어보세요.</p>"
+        ? "<h3>사람들이 모이는 중입니다….</h3>"
         : "<h3>검색 결과가 없어요</h3><p>다른 이름으로 검색해보세요.</p>";
       gridEl.appendChild(div);
       return;
     }
 
-    list.forEach((c, i)=>{
+    list.forEach((c)=>{
       const card = document.createElement("button");
       card.className = "card";
+      const minStat = Math.min(c.stats.health, c.stats.reason, c.stats.hunger);
+      if(minStat <= 0) card.classList.add("stat-critical");
+      else if(minStat === 1) card.classList.add("stat-warning");
       card.type = "button";
-      card.setAttribute("aria-label", (c.name || "이름 없음") + " 편집");
+      card.setAttribute("aria-label", (c.name || "이름 없음") + " 상세 보기");
 
-      const num = characters.indexOf(c) + 1;
       const photoHtml = c.photo
-        ? `<img class="thumb" src="${c.photo}" alt="">`
-        : `<div class="thumb placeholder">${(c.name||"?").charAt(0)}</div>`;
+        ? `<img src="${escapeHtml(c.photo)}" onerror="this.parentElement.classList.add('placeholder'); this.remove(); this.parentElement.textContent='${(c.name||"?").charAt(0)}';">`
+        : (c.name||"?").charAt(0);
+      const photoIsPlaceholder = !c.photo;
 
       const statsHtml = STAT_KEYS.map(k=>{
         const v = c.stats[k] || 0;
@@ -409,259 +664,661 @@
         return `<div class="stat-mini"><span class="label" style="color:${statColor(k)}">${statLabel(k)}</span><div class="pips">${pips}</div></div>`;
       }).join("");
 
+      const st = reasonStatus(c.stats.reason || 0);
+      const statusStyle = st.glow
+        ? `color:${st.color};text-shadow:0 0 6px ${st.color},0 0 12px ${st.color};`
+        : `color:${st.color};`;
+
       card.innerHTML = `
-        <span class="tab">No. ${String(num).padStart(2,"0")}</span>
-        <div class="card-head">
-          ${photoHtml}
-          <div>
-            <div class="card-name">${escapeHtml(c.name) || "이름 없음"}</div>
-            ${c.status ? `<div class="card-status">${escapeHtml(c.status)}</div>` : ""}
-          </div>
-        </div>
+        <div class="card-photo-wrap${photoIsPlaceholder ? " placeholder" : ""}">${photoHtml}</div>
+        <div class="card-name">${escapeHtml(c.name) || "이름 없음"}</div>
+        <div class="card-status" style="${statusStyle}">${st.label}</div>
         <div class="stat-mini-row">${statsHtml}</div>
         <div class="card-footer">
           <span class="inv-count">소지품 ${c.inventory.length}개</span>
+          ${c.updatedAt ? `<span class="updated-note">최종 수정 ${escapeHtml(c.updatedAt)}</span>` : ""}
         </div>
       `;
-      card.addEventListener("click", ()=> openModal(c.id));
+      card.addEventListener("click", ()=> openModal(c));
       gridEl.appendChild(card);
     });
   }
 
-  function escapeHtml(s){
-    return (s||"").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  /* ---------- 상세 모달 (보기 전용) ---------- */
+  const overlay = document.getElementById("overlay");
+  const modalName = document.getElementById("modalName");
+  const modalUpdated = document.getElementById("modalUpdated");
+  const modalPhoto = document.getElementById("modalPhoto");
+  const modalPhotoPlaceholder = document.getElementById("modalPhotoPlaceholder");
+  const modalStats = document.getElementById("modalStats");
+  const modalStatus = document.getElementById("modalStatus");
+  const modalInv = document.getElementById("modalInv");
+  const editName = document.getElementById("editName");
+  const editPhoto = document.getElementById("editPhoto");
+
+  function renderModalPhoto(c){
+    if(c.photo){
+      modalPhoto.src = c.photo;
+      modalPhoto.style.display = "block";
+      modalPhotoPlaceholder.style.display = "none";
+      modalPhoto.onerror = ()=>{
+        modalPhoto.style.display = "none";
+        modalPhotoPlaceholder.style.display = "flex";
+        modalPhotoPlaceholder.textContent = (c.name||"?").charAt(0) || "?";
+      };
+    } else {
+      modalPhoto.style.display = "none";
+      modalPhotoPlaceholder.style.display = "flex";
+      modalPhotoPlaceholder.textContent = (c.name||"?").charAt(0) || "?";
+    }
   }
 
-  /* ---------- modal ---------- */
-  const overlay = document.getElementById("overlay");
-  const modalTitle = document.getElementById("modalTitle");
-  const nameInput = document.getElementById("nameInput");
-  const statusInput = document.getElementById("statusInput");
-  const photoPreview = document.getElementById("photoPreview");
-  const photoPlaceholder = document.getElementById("photoPlaceholder");
-  const photoInput = document.getElementById("photoInput");
-  const invList = document.getElementById("invList");
-  const invInput = document.getElementById("invInput");
-  const deleteBtn = document.getElementById("deleteBtn");
+  function openModal(c){
+    currentModalChar = c;
+    modalName.textContent = c.name || "이름 없음";
+    modalUpdated.textContent = c.updatedAt ? ("최종 수정 " + c.updatedAt) : "";
+    editName.value = c.name || "";
+    editPhoto.value = c.photo || "";
 
-  function buildPipEditors(){
-    STAT_KEYS.forEach(key=>{
-      const editor = document.querySelector(`.pip-editor[data-stat="${key}"]`);
-      editor.innerHTML = "";
-      for(let i=1;i<=MAX_STAT;i++){
+    renderModalPhoto(c);
+
+    const st = reasonStatus(c.stats.reason || 0);
+    modalStatus.textContent = st.label;
+    modalStatus.style.color = st.color;
+    modalStatus.style.fontWeight = "700";
+    modalStatus.style.textShadow = st.glow ? `0 0 6px ${st.color}, 0 0 12px ${st.color}` : "none";
+    renderModalBody(c);
+    renderActionSection(c);
+    overlay.classList.add("open");
+  }
+
+  function renderModalBody(c){
+    modalStats.innerHTML = "";
+    STAT_KEYS.forEach(k=>{
+      const v = c.stats[k] || 0;
+      const row = document.createElement("div");
+      row.className = "stat-row";
+
+      const label = document.createElement("span");
+      label.className = "label";
+      label.style.color = statColor(k);
+      label.textContent = statLabel(k);
+      row.appendChild(label);
+
+      const pipView = document.createElement("div");
+      pipView.className = "pip-view" + (isAdminMode ? " editable" : "");
+      for(let p=1; p<=MAX_STAT; p++){
+        const pip = document.createElement(isAdminMode ? "button" : "div");
+        if(isAdminMode) pip.type = "button";
+        pip.className = "pip";
+        if(p <= v){
+          pip.style.background = statColor(k);
+          pip.style.borderColor = statColor(k);
+        }
+        if(isAdminMode){
+          pip.addEventListener("click", ()=>{
+            const newVal = (v === p) ? p - 1 : p;
+            setStat(c, k, newVal);
+          });
+        }
+        pipView.appendChild(pip);
+      }
+      row.appendChild(pipView);
+
+      const valSpan = document.createElement("span");
+      valSpan.className = "stat-value";
+      valSpan.textContent = `${v} / ${MAX_STAT}`;
+      row.appendChild(valSpan);
+
+      modalStats.appendChild(row);
+    });
+
+    if(!c.inventory.length){
+      modalInv.innerHTML = '<span style="color:var(--text-faint);font-size:13px;">없음</span>';
+      return;
+    }
+    modalInv.innerHTML = "";
+    c.inventory.forEach((raw, idx)=>{
+      const item = parseItem(raw);
+      const chip = document.createElement("span");
+      chip.className = "inv-chip" + (item.used ? " used" : "");
+      let html = `<span class="name">${escapeHtml(item.name)}</span>`;
+      if(item.hasEffect){
+        const effText = item.effects.map(ef => `${ef.statLabel}${ef.delta > 0 ? "+" : ""}${ef.delta}`).join(" ");
+        html += ` <span class="effect">${effText}</span>`;
+      }
+      if(item.used) html += ` <span class="used-tag">사용됨</span>`;
+      chip.innerHTML = html;
+      if(item.hasEffect && !item.used && isAdminMode){
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "use-btn";
+        btn.textContent = "사용";
+        btn.addEventListener("click", ()=> useItemFlow(c, raw, idx));
+        chip.appendChild(btn);
+      }
+      modalInv.appendChild(chip);
+    });
+  }
+
+  const targetOverlay = document.getElementById("targetOverlay");
+  const targetSelect = document.getElementById("targetSelect");
+  const targetEffectText = document.getElementById("targetEffectText");
+  let pendingUse = null; // { owner, rawItem, itemIdx }
+
+  const actionLogList = document.getElementById("actionLogList");
+  const actionSelect = document.getElementById("actionSelect");
+  const currentRoundTag = document.getElementById("currentRoundTag");
+  const actionNote = document.getElementById("actionNote");
+  const logActionBtn = document.getElementById("logActionBtn");
+
+  function renderActionSection(c){
+    // 지난 행동 목록
+    const entries = actionLog.filter(e => e.charRow === c.row).sort((a,b)=> a.round - b.round);
+    actionLogList.innerHTML = entries.length
+      ? ""
+      : '<span style="color:var(--text-faint);font-size:13px;">아직 기록된 행동이 없어요.</span>';
+    entries.forEach(entry=>{
+      const row = document.createElement("div");
+      row.className = "action-log-row";
+      row.innerHTML = `<span>${escapeHtml(entry.label)} · ${escapeHtml(entry.action)} (${escapeHtml(entry.statText)})</span>`;
+      if(isAdminMode){
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cancel-btn";
+        btn.textContent = "취소";
+        btn.addEventListener("click", ()=> cancelAction(c, entry.logRow));
+        row.appendChild(btn);
+      }
+      actionLogList.appendChild(row);
+    });
+
+    // 이번 라운드 행동 기록 폼
+    const idx = currentRoundIndex();
+    if(idx === -1){
+      currentRoundTag.textContent = "";
+      actionSelect.innerHTML = "";
+      logActionBtn.disabled = true;
+      actionNote.textContent = "현재 라운드가 설정되지 않았어요.";
+      return;
+    }
+    const round = ROUNDS[idx];
+    currentRoundTag.textContent = `(${round.label})`;
+
+    const already = entries.find(e => e.round === idx + 1);
+    if(already){
+      actionSelect.innerHTML = "";
+      logActionBtn.disabled = true;
+      actionNote.textContent = `이번 라운드는 이미 '${already.action}'로 기록됐어요. 취소 후 다시 기록할 수 있어요.`;
+      return;
+    }
+
+    const isNight = round.phase === "밤";
+    const actionSet = isNight ? NIGHT_ACTIONS : DAY_ACTIONS;
+    let guardBlocked = false;
+    if(isNight && idx - 2 >= 0){
+      const prevRoundNum = idx - 2 + 1;
+      guardBlocked = entries.some(e => e.round === prevRoundNum && e.action === "보초");
+    }
+
+    actionSelect.innerHTML = "";
+    Object.keys(actionSet).forEach(name=>{
+      if(name === "보초" && guardBlocked) return; // 이틀 연속 보초 금지
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = `${name} (${actionSet[name]})`;
+      actionSelect.appendChild(opt);
+    });
+    logActionBtn.disabled = false;
+    actionNote.textContent = guardBlocked ? "직전 밤에 보초를 서서 이번엔 보초를 선택할 수 없어요." : "";
+  }
+
+  logActionBtn.addEventListener("click", async ()=>{
+    if(!isAdminMode || !currentModalChar) return;
+    const c = currentModalChar;
+    const actionName = actionSelect.value;
+    if(!actionName) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const url = `${APPS_SCRIPT_URL}?action=logAction&row=${encodeURIComponent(c.row)}&actionName=${encodeURIComponent(actionName)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "기록에 실패했어요."); return; }
+      await loadMeta();
+      loadData();
+      renderActionSection(c);
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  });
+
+  async function cancelAction(c, logRow){
+    if(!isAdminMode) return;
+    if(!confirm("이 행동 기록을 취소할까요? 스탯도 원래대로 되돌아가요.")) return;
+    const url = `${APPS_SCRIPT_URL}?action=cancelAction&logRow=${encodeURIComponent(logRow)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "취소에 실패했어요."); return; }
+      await loadMeta();
+      loadData();
+      renderActionSection(c);
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요.");
+    }
+  }
+
+  async function setStat(c, statKey, value){
+    if(!isAdminMode) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const clamped = Math.max(0, Math.min(MAX_STAT, value));
+    const url = `${APPS_SCRIPT_URL}?action=setStat&row=${encodeURIComponent(c.row)}&stat=${encodeURIComponent(statLabel(statKey))}&value=${encodeURIComponent(clamped)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){
+        if(String(data.error||"").indexOf("비밀번호") !== -1){
+          isAdminMode = false;
+          adminPassword = "";
+          document.body.classList.remove("is-admin-mode");
+          adminModeBtn.textContent = "관리자 모드 켜기";
+        }
+        alert(data.error || "적용에 실패했어요.");
+        renderModalBody(c);
+        return;
+      }
+      c.stats[statKey] = clamped;
+      renderModalBody(c);
+      renderGrid();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  }
+
+  function useItemFlow(owner, rawItem, itemIdx){
+    const item = parseItem(rawItem);
+    const effectText = item.hasEffect
+      ? item.effects.map(ef => `${ef.statLabel}${ef.delta > 0 ? "+" : ""}${ef.delta}`).join(", ")
+      : "";
+    targetEffectText.textContent = `'${item.name}' 사용 (${effectText}) — 효과를 받을 캐릭터를 골라주세요.`;
+
+    targetSelect.innerHTML = "";
+    characters.forEach(ch=>{
+      const opt = document.createElement("option");
+      opt.value = ch.row;
+      opt.textContent = (ch.row === owner.row) ? `${ch.name} (본인)` : ch.name;
+      targetSelect.appendChild(opt);
+    });
+    targetSelect.value = owner.row;
+
+    pendingUse = { owner, rawItem, itemIdx };
+    targetOverlay.classList.add("open");
+  }
+  function closeTargetModal(){
+    targetOverlay.classList.remove("open");
+    pendingUse = null;
+  }
+  document.getElementById("closeTargetModal").addEventListener("click", closeTargetModal);
+  document.getElementById("targetCancelBtn").addEventListener("click", closeTargetModal);
+  targetOverlay.addEventListener("click", e=>{ if(e.target === targetOverlay) closeTargetModal(); });
+  document.getElementById("targetConfirmBtn").addEventListener("click", ()=>{
+    if(!pendingUse) return;
+    const target = characters.find(ch => String(ch.row) === targetSelect.value) || pendingUse.owner;
+    const { owner, rawItem, itemIdx } = pendingUse;
+    closeTargetModal();
+    useItem(owner, rawItem, itemIdx, target);
+  });
+
+  async function useItem(owner, rawItem, itemIdx, target){
+    target = target || owner;
+    if(!isAdminMode){ alert("관리자 모드를 먼저 켜주세요."); return; }
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const url = `${APPS_SCRIPT_URL}?action=use&row=${encodeURIComponent(owner.row)}&targetRow=${encodeURIComponent(target.row)}&item=${encodeURIComponent(rawItem)}&idx=${encodeURIComponent(itemIdx)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){
+        if(String(data.error||"").indexOf("비밀번호") !== -1){
+          isAdminMode = false;
+          adminPassword = "";
+          document.body.classList.remove("is-admin-mode");
+          adminModeBtn.textContent = "관리자 모드 켜기";
+        }
+        alert(data.error || "적용에 실패했어요.");
+        return;
+      }
+      // 화면에 즉시 반영 (다음 자동 새로고침에서 시트 값으로 재확인돼요)
+      const item = parseItem(rawItem);
+      if(item.hasEffect){
+        item.effects.forEach(ef=>{
+          target.stats[ef.statKey] = Math.max(0, Math.min(MAX_STAT, (target.stats[ef.statKey]||0) + ef.delta));
+        });
+      }
+      owner.inventory = owner.inventory.map((x, i) => i === itemIdx ? (x + "*") : x);
+      renderModalBody(owner);
+      renderGrid();
+      if(target !== owner){
+        alert(`${target.name}에게 효과가 적용됐어요.`);
+      }
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  }
+  function closeModal(){ overlay.classList.remove("open"); }
+
+  document.getElementById("saveCharBtn").addEventListener("click", async ()=>{
+    if(!isAdminMode || !currentModalChar) return;
+    const name = editName.value.trim();
+    if(!name){ alert("이름을 입력해주세요."); return; }
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const photo = editPhoto.value.trim();
+    const c = currentModalChar;
+    const url = `${APPS_SCRIPT_URL}?action=updateCharacter&row=${encodeURIComponent(c.row)}&name=${encodeURIComponent(name)}&photo=${encodeURIComponent(photo)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "저장에 실패했어요."); return; }
+      c.name = name;
+      c.photo = photo;
+      modalName.textContent = name || "이름 없음";
+      renderModalPhoto(c);
+      renderGrid();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  });
+
+  document.getElementById("deleteCharBtn").addEventListener("click", async ()=>{
+    if(!isAdminMode || !currentModalChar) return;
+    const c = currentModalChar;
+    if(!confirm(`'${c.name || "이 캐릭터"}'를 삭제할까요? 되돌릴 수 없어요.`)) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const url = `${APPS_SCRIPT_URL}?action=deleteCharacter&row=${encodeURIComponent(c.row)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){ alert(data.error || "삭제에 실패했어요."); return; }
+      closeModal();
+      loadData();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  });
+
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+  overlay.addEventListener("click", e=>{ if(e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", e=>{
+    if(e.key !== "Escape") return;
+    if(overlay.classList.contains("open")) closeModal();
+    if(targetOverlay.classList.contains("open")) closeTargetModal();
+  });
+
+  searchInput.addEventListener("input", renderGrid);
+  document.getElementById("refreshBtn").addEventListener("click", loadData);
+
+  const adminModeBtn = document.getElementById("adminModeBtn");
+  adminModeBtn.addEventListener("click", async ()=>{
+    if(isAdminMode){
+      isAdminMode = false;
+      adminPassword = "";
+      document.body.classList.remove("is-admin-mode");
+      adminModeBtn.textContent = "관리자 모드 켜기";
+      if(currentModalChar){ renderModalBody(currentModalChar); renderActionSection(currentModalChar); }
+      return;
+    }
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    const pw = prompt("관리자 비밀번호를 입력하세요.");
+    if(pw === null || pw === "") return;
+    adminModeBtn.disabled = true;
+    adminModeBtn.textContent = "확인 중...";
+    try{
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=check&password=${encodeURIComponent(pw)}`);
+      const data = await res.json();
+      if(!data.ok){
+        alert("[질거란 비밀글로 TRUTH 입력]");
+        adminModeBtn.textContent = "관리자 모드 켜기";
+        return;
+      }
+      adminPassword = pw;
+      isAdminMode = true;
+      document.body.classList.add("is-admin-mode");
+      adminModeBtn.textContent = "관리자 모드 끄기";
+      if(currentModalChar){ renderModalBody(currentModalChar); renderActionSection(currentModalChar); }
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+      adminModeBtn.textContent = "관리자 모드 켜기";
+    }finally{
+      adminModeBtn.disabled = false;
+    }
+  });
+
+  loadData();
+  loadMeta();
+  setInterval(()=>{ loadData(); loadMeta(); }, REFRESH_MS);
+
+  const bulkHungerBtn = document.getElementById("bulkHungerBtn");
+  bulkHungerBtn.addEventListener("click", async ()=>{
+    if(!isAdminMode) return;
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    if(!confirm("모든 캐릭터의 허기를 1 낮출까요?")) return;
+    bulkHungerBtn.disabled = true;
+    try{
+      const url = `${APPS_SCRIPT_URL}?action=bulkAdjust&stat=${encodeURIComponent("허기")}&delta=-1&password=${encodeURIComponent(adminPassword)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){
+        alert(data.error || "적용에 실패했어요.");
+        return;
+      }
+      alert(`${data.count}명의 허기를 낮췄어요.`);
+      loadData();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }finally{
+      bulkHungerBtn.disabled = false;
+    }
+  });
+
+  /* ---------- 캐릭터 만들기 ---------- */
+  const createOverlay = document.getElementById("createOverlay");
+  const createName = document.getElementById("createName");
+  const createPhoto = document.getElementById("createPhoto");
+  const createStats = document.getElementById("createStats");
+  const createCharBtn = document.getElementById("createCharBtn");
+  let createDraftStats = { health:5, reason:5, hunger:5 };
+
+  function renderCreateStats(){
+    createStats.innerHTML = "";
+    STAT_KEYS.forEach(k=>{
+      const v = createDraftStats[k];
+      const row = document.createElement("div");
+      row.className = "stat-row";
+      const label = document.createElement("span");
+      label.className = "label";
+      label.style.color = statColor(k);
+      label.textContent = statLabel(k);
+      row.appendChild(label);
+
+      const pipView = document.createElement("div");
+      pipView.className = "pip-view editable";
+      for(let p=1; p<=MAX_STAT; p++){
         const pip = document.createElement("button");
         pip.type = "button";
         pip.className = "pip";
-        pip.dataset.value = i;
+        if(p <= v){ pip.style.background = statColor(k); pip.style.borderColor = statColor(k); }
         pip.addEventListener("click", ()=>{
-          // clicking the currently-topmost filled pip again clears it
-          const cur = draft.stats[key] || 0;
-          draft.stats[key] = (cur === i) ? i-1 : i;
-          renderPips(key);
+          createDraftStats[k] = (v === p) ? p - 1 : p;
+          renderCreateStats();
         });
-        editor.appendChild(pip);
+        pipView.appendChild(pip);
       }
+      row.appendChild(pipView);
+
+      const valSpan = document.createElement("span");
+      valSpan.className = "stat-value";
+      valSpan.textContent = `${v} / ${MAX_STAT}`;
+      row.appendChild(valSpan);
+
+      createStats.appendChild(row);
     });
   }
-  function renderPips(key){
-    const val = draft.stats[key] || 0;
-    const editor = document.querySelector(`.pip-editor[data-stat="${key}"]`);
-    [...editor.children].forEach((pip, idx)=>{
-      const filled = (idx+1) <= val;
-      pip.style.background = filled ? statColor(key) : "";
-      pip.style.borderColor = filled ? statColor(key) : "";
-    });
-    document.getElementById(key+"Val").textContent = `${val} / ${MAX_STAT}`;
-  }
-  function renderAllPips(){ STAT_KEYS.forEach(renderPips); }
 
-  function renderInvList(){
-    invList.innerHTML = "";
-    draft.inventory.forEach((item, idx)=>{
-      const chip = document.createElement("span");
-      chip.className = "inv-chip";
-      chip.innerHTML = `${escapeHtml(item)} <button type="button" aria-label="삭제">✕</button>`;
-      chip.querySelector("button").addEventListener("click", ()=>{
-        draft.inventory.splice(idx,1);
-        renderInvList();
-      });
-      invList.appendChild(chip);
-    });
-  }
-  function addInvItem(){
-    const v = invInput.value.trim();
-    if(!v) return;
-    draft.inventory.push(v);
-    invInput.value = "";
-    renderInvList();
-  }
-
-  function renderPhoto(){
-    if(draft.photo){
-      photoPreview.src = draft.photo;
-      photoPreview.style.display = "block";
-      photoPlaceholder.style.display = "none";
-    } else {
-      photoPreview.style.display = "none";
-      photoPlaceholder.style.display = "flex";
-      photoPlaceholder.textContent = (draft.name||"?").charAt(0) || "?";
-    }
-  }
-
-  function openModal(id){
-    currentId = id;
-    const existing = id ? characters.find(c=>c.id===id) : null;
-    draft = existing ? JSON.parse(JSON.stringify(existing)) : blankChar();
-
-    modalTitle.textContent = existing ? "캐릭터 편집" : "새 캐릭터";
-    nameInput.value = draft.name;
-    statusInput.value = draft.status;
-    deleteBtn.style.display = existing ? "inline-block" : "none";
-
-    renderPhoto();
-    renderAllPips();
-    renderInvList();
-    overlay.classList.add("open");
-    setTimeout(()=> nameInput.focus(), 50);
-  }
-  function closeModal(){
-    overlay.classList.remove("open");
-    currentId = null;
-    draft = null;
-  }
-
-  async function saveDraft(){
-    draft.name = nameInput.value.trim() || "이름 없음";
-    draft.status = statusInput.value.trim();
-    const isNew = !characters.some(c=>c.id===draft.id);
-    if(isNew && characters.length >= MAX_CHARS){
-      alert("정원이 가득 찼어요 (40 / 40). 다른 캐릭터를 먼저 삭제해주세요.");
+  function openCreateModal(){
+    if(characters.length >= MAX_CHARS){
+      alert(`정원이 가득 찼어요 (${MAX_CHARS} / ${MAX_CHARS}).`);
       return;
     }
-    await dbPut(draft);
-    if(isNew){
-      characters.push(draft);
-    } else {
-      const idx = characters.findIndex(c=>c.id===draft.id);
-      characters[idx] = draft;
+    createName.value = "";
+    createPhoto.value = "";
+    createDraftStats = { health:5, reason:5, hunger:5 };
+    renderCreateStats();
+    createOverlay.classList.add("open");
+    setTimeout(()=> createName.focus(), 50);
+  }
+  function closeCreateModal(){ createOverlay.classList.remove("open"); }
+
+  createCharBtn.addEventListener("click", openCreateModal);
+  document.getElementById("closeCreateModal").addEventListener("click", closeCreateModal);
+  document.getElementById("createCancelBtn").addEventListener("click", closeCreateModal);
+  createOverlay.addEventListener("click", e=>{ if(e.target === createOverlay) closeCreateModal(); });
+
+  document.getElementById("createConfirmBtn").addEventListener("click", async ()=>{
+    const name = createName.value.trim();
+    if(!name){ alert("이름을 입력해주세요."); return; }
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
     }
-    closeModal();
-    renderGrid();
-  }
-  async function deleteDraft(){
-    if(!draft) return;
-    if(!confirm(`'${draft.name || "이 캐릭터"}'를 삭제할까요?`)) return;
-    await dbDelete(draft.id);
-    characters = characters.filter(c=>c.id!==draft.id);
-    closeModal();
-    renderGrid();
-  }
-
-  /* ---------- photo upload: resize/crop to 250x250 ---------- */
-  function handlePhotoFile(file){
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = e=>{
-      const img = new Image();
-      img.onload = ()=>{
-        const size = 250;
-        const canvas = document.createElement("canvas");
-        canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext("2d");
-        const side = Math.min(img.width, img.height);
-        const sx = (img.width - side)/2;
-        const sy = (img.height - side)/2;
-        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
-        draft.photo = canvas.toDataURL("image/jpeg", 0.87);
-        renderPhoto();
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  /* ---------- export / import ---------- */
-  function exportJson(){
-    const blob = new Blob([JSON.stringify(characters, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `oc-stat-dossier-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  async function importJson(file){
-    if(!file) return;
+    const photo = createPhoto.value.trim();
+    const url = `${APPS_SCRIPT_URL}?action=createCharacter`
+      + `&name=${encodeURIComponent(name)}`
+      + `&photo=${encodeURIComponent(photo)}`
+      + `&health=${createDraftStats.health}&reason=${createDraftStats.reason}&hunger=${createDraftStats.hunger}`
+      + `&password=${encodeURIComponent(adminPassword)}`;
     try{
-      const text = await file.text();
-      const data = JSON.parse(text);
-      if(!Array.isArray(data)) throw new Error("형식이 올바르지 않아요");
-      const merged = confirm("기존 데이터에 추가할까요?\n[확인] = 추가 / [취소] = 전체 교체");
-      if(!merged){
-        await dbClear();
-        characters = [];
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){
+        alert(data.error || "만들기에 실패했어요.");
+        return;
       }
-      for(const c of data){
-        if(characters.length >= MAX_CHARS) break;
-        const clean = {
-          id: c.id || uid(),
-          name: c.name || "이름 없음",
-          photo: c.photo || null,
-          stats: {
-            health: clampStat(c.stats?.health),
-            reason: clampStat(c.stats?.reason),
-            hunger: clampStat(c.stats?.hunger)
-          },
-          status: c.status || "",
-          inventory: Array.isArray(c.inventory) ? c.inventory : []
-        };
-        await dbPut(clean);
-        characters.push(clean);
-      }
-      renderGrid();
-      alert("불러오기가 끝났어요.");
-    } catch(err){
-      alert("파일을 읽는 중 문제가 생겼어요: " + err.message);
+      closeCreateModal();
+      loadData();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
     }
+  });
+
+  /* ---------- 아이템 등록 (기존 캐릭터에게) ---------- */
+  const newItemName = document.getElementById("newItemName");
+  const newItemEffects = document.getElementById("newItemEffects");
+
+  function effectRowSelectHtml(cls, opts){
+    return `<select class="${cls}" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 8px;font-size:13px;font-family:inherit;">${opts}</select>`;
   }
-  function clampStat(v){
-    v = Number(v) || 0;
-    return Math.max(0, Math.min(MAX_STAT, Math.round(v)));
+  function addEffectRow(){
+    const row = document.createElement("div");
+    row.className = "effect-row";
+    row.style.cssText = "display:flex;gap:6px;margin-bottom:6px;align-items:center;";
+    row.innerHTML =
+      effectRowSelectHtml("effect-stat", `<option value="체력">체력</option><option value="이성">이성</option><option value="허기">허기</option>`) +
+      effectRowSelectHtml("effect-delta", `<option value="1">+1</option><option value="2">+2</option><option value="-1">-1</option><option value="-2">-2</option>`) +
+      `<button type="button" class="remove-effect-row btn ghost" style="padding:5px 9px;font-size:12px;">✕</button>`;
+    row.querySelector(".remove-effect-row").addEventListener("click", ()=> row.remove());
+    newItemEffects.appendChild(row);
+  }
+  document.getElementById("addEffectRowBtn").addEventListener("click", addEffectRow);
+
+  function resetItemForm(){
+    newItemName.value = "";
+    newItemEffects.innerHTML = "";
   }
 
-  /* ---------- wire up events ---------- */
-  document.getElementById("uploadBtn").addEventListener("click", ()=> photoInput.click());
-  photoInput.addEventListener("change", e=> handlePhotoFile(e.target.files[0]));
-  document.getElementById("removePhotoBtn").addEventListener("click", ()=>{ draft.photo = null; renderPhoto(); });
-  nameInput.addEventListener("input", ()=>{ if(!draft.photo) photoPlaceholder.textContent = nameInput.value.charAt(0) || "?"; });
+  document.getElementById("addItemBtn").addEventListener("click", async ()=>{
+    if(!isAdminMode || !currentModalChar) return;
+    const name = newItemName.value.trim();
+    if(!name){ alert("아이템 이름을 입력해주세요."); return; }
+    if(name.indexOf(",") !== -1 || name.indexOf(":") !== -1){
+      alert("아이템 이름에는 쉼표(,)나 콜론(:)을 쓸 수 없어요.");
+      return;
+    }
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf("여기에") === 0){
+      alert("아직 APPS_SCRIPT_URL이 설정되지 않았어요.");
+      return;
+    }
+    let effectSegment = "";
+    newItemEffects.querySelectorAll(".effect-row").forEach(row=>{
+      const stat = row.querySelector(".effect-stat").value;
+      const delta = Number(row.querySelector(".effect-delta").value);
+      effectSegment += `${stat}${delta > 0 ? "+" : ""}${delta}`;
+    });
+    const rawItem = effectSegment ? `${name}:${effectSegment}` : name;
+    const c = currentModalChar;
+    const url = `${APPS_SCRIPT_URL}?action=addItem&row=${encodeURIComponent(c.row)}&item=${encodeURIComponent(rawItem)}&password=${encodeURIComponent(adminPassword)}`;
+    try{
+      const res = await fetch(url);
+      const data = await res.json();
+      if(!data.ok){
+        alert(data.error || "등록에 실패했어요.");
+        return;
+      }
+      c.inventory.push(rawItem);
+      resetItemForm();
+      renderModalBody(c);
+      renderGrid();
+    }catch(err){
+      console.error(err);
+      alert("서버에 연결하지 못했어요. APPS_SCRIPT_URL을 확인해주세요.");
+    }
+  });
 
-  document.getElementById("invAddBtn").addEventListener("click", addInvItem);
-  invInput.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); addInvItem(); } });
-
-  document.getElementById("saveBtn").addEventListener("click", saveDraft);
-  document.getElementById("cancelBtn").addEventListener("click", closeModal);
-  document.getElementById("closeModal").addEventListener("click", closeModal);
-  deleteBtn.addEventListener("click", deleteDraft);
-  overlay.addEventListener("click", e=>{ if(e.target === overlay) closeModal(); });
-  document.addEventListener("keydown", e=>{ if(e.key === "Escape" && overlay.classList.contains("open")) closeModal(); });
-
-  addBtn.addEventListener("click", ()=> openModal(null));
-  searchInput.addEventListener("input", renderGrid);
-
-  document.getElementById("exportBtn").addEventListener("click", exportJson);
-  const importFile = document.getElementById("importFile");
-  document.getElementById("importBtn").addEventListener("click", ()=> importFile.click());
-  importFile.addEventListener("change", e=> importJson(e.target.files[0]));
-
-  buildPipEditors();
-
-  /* ---------- init ---------- */
-  openDB().then(async ()=>{
-    characters = await dbGetAll();
-    renderGrid();
-  }).catch(err=>{
-    console.error(err);
-    alert("브라우저 저장소를 여는 데 실패했어요. 시크릿 모드가 아닌지 확인해주세요.");
+  /* ---------- 배경음악 (반복재생) ---------- */
+  const bgm = document.getElementById("bgm");
+  const bgmBtn = document.getElementById("bgmBtn");
+  bgmBtn.addEventListener("click", ()=>{
+    if(bgm.paused){
+      bgm.play().then(()=>{
+        bgmBtn.classList.add("primary");
+        bgmBtn.classList.remove("ghost");
+      }).catch(err=>{
+        console.error(err);
+        alert("재생에 실패했어요. 다시 눌러주세요.");
+      });
+    } else {
+      bgm.pause();
+      bgmBtn.classList.remove("primary");
+      bgmBtn.classList.add("ghost");
+    }
   });
 })();
 </script>
